@@ -25,7 +25,11 @@ sex.by.firm.size.average.sum <- sex.by.firm.size[209:.N]
 setkey(sex.by.firm.size.average.sum,FIRMSIZE,SEX)
 setkey(sex.by.firm.size.average,FIRMSIZE,SEX)
 sex.by.firm.size.average.sum <- sex.by.firm.size.average.sum[sex.by.firm.size.average,nomatch=0]
+sex.by.firm.size.average.sum[,percentile:=pnorm(abs(pct_change),mean=MEAN.LAG,sd=sqrt(VAR.LAG))]
 
+
+####################
+#Age
 
 
 
@@ -38,12 +42,14 @@ age.by.firm.size[,pct_change:=(V1-lagged)/V1]
 age.by.firm.size.average <- age.by.firm.size[1:1248,.(mean(pct_change,na.rm=TRUE),
                                                      median(pct_change,na.rm=TRUE),
                                                      var(pct_change,na.rm=TRUE)),by=.(FIRMSIZE,AGE_12)]
-names(sex.by.firm.size.average) <- c("FIRMSIZE","AGE_12","MEAN.LAG",
+names(age.by.firm.size.average) <- c("FIRMSIZE","AGE_12","MEAN.LAG",
                                      "MED.LAG","VAR.LAG")
 age.by.firm.size.average.sum <- age.by.firm.size[1249:.N]
 setkey(age.by.firm.size.average.sum,FIRMSIZE,AGE_12)
 setkey(age.by.firm.size.average,FIRMSIZE,AGE_12)
 age.by.firm.size.average.sum <- age.by.firm.size.average.sum[age.by.firm.size.average,nomatch=0]
+age.by.firm.size.average.sum[,percentile:=pnorm(abs(pct_change),mean=MEAN.LAG,sd=sqrt(VAR.LAG))]
+
 
 ########################
 #Union
@@ -64,7 +70,7 @@ union.by.firm.size.average.sum <- union.by.firm.size[313:.N]
 setkey(union.by.firm.size.average.sum,FIRMSIZE,UNION)
 setkey(union.by.firm.size.average,FIRMSIZE,UNION)
 union.by.firm.size.average.sum <- union.by.firm.size.average.sum[union.by.firm.size.average,nomatch=0]
-
+union.by.firm.size.average.sum[,percentile:=pnorm(abs(pct_change),mean=MEAN.LAG,sd=sqrt(VAR.LAG))]
 ############################
 #Union slight deep dive - early retirement thing
 ############################
@@ -109,10 +115,13 @@ educ.by.firm.size.average.sum <- educ.by.firm.size[729:.N]
 setkey(educ.by.firm.size.average.sum,FIRMSIZE,EDUC)
 setkey(educ.by.firm.size.average,FIRMSIZE,EDUC)
 educ.by.firm.size.average.sum <- educ.by.firm.size.average.sum[educ.by.firm.size.average,nomatch=0]
+educ.by.firm.size.average.sum[,percentile:=pnorm(abs(pct_change),mean=MEAN.LAG,sd=sqrt(VAR.LAG))]
 
 
 
-
+##########################
+#Tenure stuff
+##########################
 tenure.by.firm.size <- main[!is.na(FIRMSIZE),.(wt.mean(TENURE,FINALWT),
                                                sqrt(wt.var(TENURE,FINALWT))),
                             by=.(SURVYEAR,SURVMNTH,FIRMSIZE)]
