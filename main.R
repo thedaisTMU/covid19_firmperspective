@@ -7,7 +7,7 @@ library(extrafont)
 
 load("Data/main.RDA")
 
-
+#############################################
 #Need to predict employment dynamics for people in the February LFS, if they were surveyed again, and if nothing changed, where would they be.
 
 setkey(main,SURVYEAR,SURVMNTH)
@@ -50,10 +50,10 @@ sex.by.firm.size.average.sum[,FIRMSIZE:=as.character(FIRMSIZE)]
 sex.by.firm.size.average.sum[,SEX:=as.character(SEX)]
 sex.by.firm.size.average.sum[SEX==1,SEX:="Male"]
 sex.by.firm.size.average.sum[SEX==2,SEX:="Female"]
-sex.by.firm.size.average.sum[FIRMSIZE=="1",FIRMSIZE:="0-20 Employees"]
-sex.by.firm.size.average.sum[FIRMSIZE=="2",FIRMSIZE:="21-100 Employees"]
-sex.by.firm.size.average.sum[FIRMSIZE=="3",FIRMSIZE:="101-500 Employees"]
-sex.by.firm.size.average.sum[FIRMSIZE=="4",FIRMSIZE:="501+ Employees"]
+sex.by.firm.size.average.sum[FIRMSIZE=="1",FIRMSIZE:="0-19 Employees"]
+sex.by.firm.size.average.sum[FIRMSIZE=="2",FIRMSIZE:="20-99 Employees"]
+sex.by.firm.size.average.sum[FIRMSIZE=="3",FIRMSIZE:="100-499 Employees"]
+sex.by.firm.size.average.sum[FIRMSIZE=="4",FIRMSIZE:="500+ Employees"]
 sex.by.firm.size.average.sum[FIRMSIZE=="0-20 Employees",FIRMSIZE.ORDER:=1]
 sex.by.firm.size.average.sum[FIRMSIZE=="21-100 Employees",FIRMSIZE.ORDER:=2]
 sex.by.firm.size.average.sum[FIRMSIZE=="101-500 Employees",FIRMSIZE.ORDER:=3]
@@ -102,10 +102,10 @@ age.by.firm.size.average.sum[,FIRMSIZE:=as.character(FIRMSIZE)]
 age.by.firm.size.average.sum[AGE_12==1,AGE.ENUMERATED:="15-19 Years Old"]
 age.by.firm.size.average.sum[AGE_12==2,AGE.ENUMERATED:="20-24 Years Old"]
 age.by.firm.size.average.sum[AGE_12]
-age.by.firm.size.average.sum[FIRMSIZE=="1",FIRMSIZE:="0-20 Employees"]
-age.by.firm.size.average.sum[FIRMSIZE=="2",FIRMSIZE:="21-100 Employees"]
-age.by.firm.size.average.sum[FIRMSIZE=="3",FIRMSIZE:="101-500 Employees"]
-age.by.firm.size.average.sum[FIRMSIZE=="4",FIRMSIZE:="501+ Employees"]
+age.by.firm.size.average.sum[FIRMSIZE=="1",FIRMSIZE:="0-19 Employees"]
+age.by.firm.size.average.sum[FIRMSIZE=="2",FIRMSIZE:="20-99 Employees"]
+age.by.firm.size.average.sum[FIRMSIZE=="3",FIRMSIZE:="100-499 Employees"]
+age.by.firm.size.average.sum[FIRMSIZE=="4",FIRMSIZE:="500+ Employees"]
 age.by.firm.size.average.sum[FIRMSIZE=="0-20 Employees",FIRMSIZE.ORDER:=1]
 age.by.firm.size.average.sum[FIRMSIZE=="21-100 Employees",FIRMSIZE.ORDER:=2]
 age.by.firm.size.average.sum[FIRMSIZE=="101-500 Employees",FIRMSIZE.ORDER:=3]
@@ -125,7 +125,30 @@ youth.diff.plot.main <- plot.column.bf(age.by.firm.size.average.sum[AGE_12 %in% 
   theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),hjust=0.5,angle=0, family = "RooneySans-Light")) +
   scale_y_continuous(breaks = c(0,10,20,30,40,50),labels = c("0%","-10%","-20%","-30%","-40%","-50%"),expand=expansion(mult=c(0,0.1)))
 
-
+age.by.firm.size.average.sum[AGE_12==3,AGE.ENUMERATED:="25-44 Years Old"]
+age.by.firm.size.average.sum[AGE_12==4,AGE.ENUMERATED:="25-44 Years Old"]
+age.by.firm.size.average.sum[AGE_12==5,AGE.ENUMERATED:="25-44 Years Old"]
+age.by.firm.size.average.sum[AGE_12==6,AGE.ENUMERATED:="25-44 Years Old"]
+age.by.firm.size.average.sum[AGE_12==7,AGE.ENUMERATED:="45-64 Years Old"]
+age.by.firm.size.average.sum[AGE_12==8,AGE.ENUMERATED:="45-64 Years Old"]
+age.by.firm.size.average.sum[AGE_12==9,AGE.ENUMERATED:="45-64 Years Old"]
+age.by.firm.size.average.sum[AGE_12==10,AGE.ENUMERATED:="45-64 Years Old"]
+age.by.firm.size.average.sum[AGE_12==11,AGE.ENUMERATED:="65+ Years Old"]
+age.by.firm.size.average.sum[AGE_12==12,AGE.ENUMERATED:="65+ Years Old"]
+for.plot.age <- age.by.firm.size.average.sum[,c("V1_sum","lagged_sum"):=.(sum(V1),sum(lagged)),by=.(FIRMSIZE,AGE.ENUMERATED)]
+for.plot.age[,pct_change:=100*(lagged_sum-V1_sum)/lagged_sum]
+for.plot.age <- for.plot.age[,unique(pct_change),by=.(FIRMSIZE,AGE.ENUMERATED)]
+all.age.diff.plot.main <- plot.column.bf(for.plot.age[AGE.ENUMERATED %in% c("25-44 Years Old","45-64 Years Old","65+ Years Old")],
+                                       "V1",
+                                       "FIRMSIZE",
+                                       group.by="AGE.ENUMERATED",
+                                       label.unit = "%",
+                                       colours=c(set.colours(3,categorical.choice=c("dark.blue","light.blue","pink"))),
+                                       plot.title = "Worker Layoff by Age Groups",
+                                       plot.fig.num = "Figure X",
+                                       y.axis = "% Reduction in Workers",
+                                       caption = "Source: Labour Force Survey PUMF, Author Calculations") +
+  theme(axis.text.x = ggplot2::element_text(size=9, margin=ggplot2::margin(t=2),hjust=0.5,angle=0, family = "RooneySans-Light"))
 ########################
 #Union
 ########################
@@ -262,6 +285,25 @@ setkey(geography.by.firm.size.average.sum,FIRMSIZE,PROV)
 setkey(geography.by.firm.size.average,FIRMSIZE,PROV)
 geography.by.firm.size.average.sum <- geography.by.firm.size.average.sum[geography.by.firm.size.average,nomatch=0]
 names(geography.by.firm.size.average.sum) <- c("SURVYEAR","SURVMNTH","FIRMSIZE","PROV","EMP","lagged","pct_change","MEAN.LAG","MED.LAG","VAR.LAG")
+geography.by.firm.size.average.sum[,percentile:=pnorm(abs(pct_change),mean=MEAN.LAG,sd=sqrt(VAR.LAG))]
+
+
+#########################
+#By CMA
+geography.by.firm.size <- main[,sum(FINALWT),by=.(SURVYEAR,SURVMNTH,FIRMSIZE,CMA)]
+setkey(geography.by.firm.size,SURVYEAR,SURVMNTH)
+geography.by.firm.size <- geography.by.firm.size[!is.na(FIRMSIZE)]
+geography.by.firm.size[,lagged:=shift(V1),by=.(FIRMSIZE,CMA)]
+geography.by.firm.size[,pct_change:=(V1-lagged)/V1]
+geography.by.firm.size.average <- geography.by.firm.size[SURVYEAR*SURVMNTH!=6060,.(mean(pct_change,na.rm=TRUE),
+                                                                                   median(pct_change,na.rm=TRUE),
+                                                                                   var(pct_change,na.rm=TRUE)),by=.(FIRMSIZE,CMA)]
+
+geography.by.firm.size.average.sum <- geography.by.firm.size[SURVYEAR*SURVMNTH == 6060]
+setkey(geography.by.firm.size.average.sum,FIRMSIZE,CMA)
+setkey(geography.by.firm.size.average,FIRMSIZE,CMA)
+geography.by.firm.size.average.sum <- geography.by.firm.size.average.sum[geography.by.firm.size.average,nomatch=0]
+names(geography.by.firm.size.average.sum) <- c("SURVYEAR","SURVMNTH","FIRMSIZE","CMA","EMP","lagged","pct_change","MEAN.LAG","MED.LAG","VAR.LAG")
 geography.by.firm.size.average.sum[,percentile:=pnorm(abs(pct_change),mean=MEAN.LAG,sd=sqrt(VAR.LAG))]
 
 
